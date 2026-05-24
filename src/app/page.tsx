@@ -1,65 +1,250 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { herbs } from '@/lib/data/herbs'
+
+// ─── Rooms data ────────────────────────────────────────────────────────────────
+
+const rooms = [
+  {
+    label: 'MATERIA MEDICA',
+    title: 'The Botica',
+    description:
+      'An encyclopedic archive of 200+ herbs, roots, and plant medicines from traditions around the world.',
+    href: '/botica',
+    dot: '●',
+  },
+  {
+    label: 'EIGHT DOMAINS',
+    title: 'Practices',
+    description:
+      'Body rituals, skin care, internal cleansing, reproductive wisdom, energetic work, and more.',
+    href: '/practices',
+    dot: '◆',
+  },
+  {
+    label: 'LIFE STAGE MAP',
+    title: 'Body Through Time',
+    description:
+      'What your body needs changes. Follow the map from menarche to post-menopause and beyond.',
+    href: '/body-through-time',
+    dot: '◎',
+  },
+  {
+    label: 'LIVING LINEAGES',
+    title: 'Traditions',
+    description:
+      'Ayurveda, TCM, Curanderismo, Indigenous North American, Western Herbalism, and many more.',
+    href: '/traditions',
+    dot: '○',
+  },
+]
+
+// ─── Animation variants ────────────────────────────────────────────────────────
+
+const heroVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+}
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+}
+
+const cardVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+}
+
+// ─── Homepage ─────────────────────────────────────────────────────────────────
+
+export default function HomePage() {
+  const featuredHerbs = herbs.slice(0, 6)
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      {/* ── 1. Hero ───────────────────────────────────────────────────────── */}
+      <section className="bg-cream px-6 py-28 md:px-16 md:py-36">
+        <motion.div
+          className="mx-auto max-w-5xl"
+          initial="initial"
+          animate="animate"
+          variants={heroVariants}
+        >
+          <h1
+            className="font-serif font-light text-forest leading-[0.88] tracking-[-0.025em] mb-8"
+            style={{ fontSize: 'clamp(3.5rem, 9vw, 8rem)' }}
+          >
+            The Archive of<br />Ancestral Wellness
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="font-accent italic text-sage text-xl md:text-2xl mb-12 max-w-2xl leading-relaxed">
+            Twenty traditions. Hundreds of herbs. The knowledge your grandmother kept.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+          <div className="flex flex-wrap gap-4">
+            <Link href="/botica" className="btn-primary">
+              Enter the Botica
+            </Link>
+            <Link
+              href="/practices"
+              className="inline-block border border-forest text-forest font-mono uppercase tracking-[0.18em] px-5 py-[0.625rem] transition-colors duration-[220ms] ease-out hover:bg-forest hover:text-cream"
+              style={{ fontSize: '0.6rem' }}
+            >
+              Browse Practices
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── 2. Four Rooms ────────────────────────────────────────────────── */}
+      <section className="bg-parchment px-6 py-20 md:px-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="font-serif text-forest text-3xl md:text-4xl font-normal mb-12">
+            Four rooms, one library
+          </h2>
+
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: '-60px' }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {rooms.map((room) => (
+              <motion.div key={room.href} variants={cardVariants}>
+                <Link href={room.href} className="block h-full">
+                  <motion.div
+                    className="card h-full p-6 flex flex-col gap-4 cursor-pointer transition-colors duration-[220ms] ease-out hover:bg-cream"
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                  >
+                    <span className="text-sage text-lg leading-none" aria-hidden="true">
+                      {room.dot}
+                    </span>
+
+                    <div>
+                      <p className="label-text text-sage mb-2">{room.label}</p>
+                      <h3 className="font-serif text-forest text-2xl font-normal leading-tight">
+                        {room.title}
+                      </h3>
+                    </div>
+
+                    <p className="font-serif text-warm-gray text-base leading-relaxed flex-1">
+                      {room.description}
+                    </p>
+
+                    <span className="label-text text-clay mt-auto">
+                      Explore →
+                    </span>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* ── 3. Herb Grid ──────────────────────────────────────────────────── */}
+      <section className="bg-cream px-6 py-20 md:px-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="font-serif text-forest text-3xl md:text-4xl font-normal mb-12">
+            From the archive
+          </h2>
+
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: '-60px' }}
+          >
+            {featuredHerbs.map((herb) => (
+              <motion.div key={herb.id} variants={cardVariants}>
+                <div className="card p-6 flex flex-col gap-3 h-full">
+                  <div>
+                    <h3 className="font-serif text-forest text-2xl font-normal leading-tight">
+                      {herb.name}
+                    </h3>
+                    <p className="font-serif italic text-warm-gray text-sm mt-0.5">
+                      {herb.botanicalName}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {herb.pharmacologicalActions.slice(0, 3).map((action) => (
+                      <span
+                        key={action}
+                        className="label-text text-sage border border-border px-2 py-0.5"
+                      >
+                        {action}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto pt-2">
+                    <Link
+                      href={`/botica/${herb.slug}`}
+                      className="font-mono text-clay hover:text-terracotta transition-colors duration-[220ms]"
+                      style={{ fontSize: '0.7rem' }}
+                    >
+                      View entry →
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── 4. Pull Quote ─────────────────────────────────────────────────── */}
+      <section className="bg-parchment px-6 py-24 md:px-16 md:py-32">
+        <div className="mx-auto max-w-3xl text-center">
+          <blockquote>
+            <p className="pull-quote mb-6">
+              &ldquo;The plants were here before us. They will be here after. This archive exists
+              because they deserve to be remembered.&rdquo;
+            </p>
+            <cite className="label-text text-sage not-italic">
+              — Legaseed Archive
+            </cite>
+          </blockquote>
+        </div>
+      </section>
+
+      {/* ── 5. Contribute CTA ─────────────────────────────────────────────── */}
+      <section className="bg-forest px-6 py-20 md:px-16 md:py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-cream text-3xl md:text-4xl font-normal mb-6">
+            This archive grows with you
+          </h2>
+          <p className="font-serif text-cream/80 text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
+            Every entry is a gift forward. Share what your grandmother knew, what your healer
+            practiced, what the land taught your people.
+          </p>
+          <Link
+            href="/contribute"
+            className="inline-block bg-cream text-forest font-mono uppercase tracking-[0.18em] px-6 py-3 border border-cream transition-colors duration-[220ms] ease-out hover:bg-parchment hover:border-parchment"
+            style={{ fontSize: '0.6rem' }}
+          >
+            Contribute to the Archive
+          </Link>
+        </div>
+      </section>
+    </>
+  )
 }
