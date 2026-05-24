@@ -46,6 +46,37 @@
   }
 }
 
+/* ─── Skip link ──────────────────────────────────────────────────────────── */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  background: #2c3d26;
+  color: #faf6ec;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-dm-mono, 'DM Mono', monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid rgba(250, 246, 236, 0.2);
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid #b5694f;
+  outline-offset: 2px;
+}
+
+/* ─── Focus ring — keyboard only ────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid #b5694f;
+  outline-offset: 2px;
+}
+
 @layer components {
   .label-text {
     font-family: var(--font-dm-mono, 'DM Mono', 'Courier New', monospace);

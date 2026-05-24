@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, DM_Mono, Libre_Baskerville } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 import GrainOverlay from '@/components/layout/GrainOverlay'
 import Navigation from '@/components/layout/Navigation'
 import './globals.css'
@@ -32,6 +33,13 @@ export const metadata: Metadata = {
   title: 'Legaseed — Ancestral & Indigenous Wellness Knowledge',
   description:
     'A living archive of ancestral and indigenous wellness traditions, herbs, and practices.',
+  metadataBase: new URL('https://legaseed.com'),
+  openGraph: {
+    siteName: 'Legaseed',
+    locale: 'en_US',
+    type: 'website',
+  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({
@@ -45,9 +53,13 @@ export default function RootLayout({
       className={`${cormorant.variable} ${dmMono.variable} ${libreBaskerville.variable}`}
     >
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <GrainOverlay />
         <Navigation />
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
+        <Analytics />
       </body>
     </html>
   )
