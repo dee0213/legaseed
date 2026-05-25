@@ -262,15 +262,18 @@ function SubmitButton({ submitting }: { submitting: boolean }) {
     <motion.button
       type="submit"
       disabled={submitting}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.99 }}
+      animate={submitting ? { opacity: [1, 0.5, 1] } : { opacity: 1 }}
+      transition={submitting ? { repeat: Infinity, duration: 1.1, ease: 'easeInOut' } : { duration: 0.15 }}
       style={{
-        fontFamily: FONT.mono, fontSize: '0.62rem', letterSpacing: '0.2em',
+        width: '100%', fontFamily: FONT.mono, fontSize: '0.62rem', letterSpacing: '0.2em',
         textTransform: 'uppercase', background: submitting ? T.sage : T.forest,
-        color: T.parchment, border: 'none', padding: '1.1rem 2.75rem',
+        color: T.parchment, border: 'none', padding: '1.25rem 2rem',
         cursor: submitting ? 'not-allowed' : 'pointer', transition: 'background 0.2s', borderRadius: 0,
+        textAlign: 'center' as const,
       }}
     >
-      {submitting ? 'Submitting…' : 'Submit to the Archive'}
+      {submitting ? 'Submitting…' : 'Submit to the Archive →'}
     </motion.button>
   )
 }
@@ -358,6 +361,76 @@ function TypeCard({ type, selected, onSelect }: { type: typeof ENTRY_TYPES[0]; s
         {type.description}
       </p>
     </button>
+  )
+}
+
+// ─── Compact type selector row (shown after selection) ───────────────────────
+
+function CompactTypeSelector({ type, onReset }: { type: typeof ENTRY_TYPES[0]; onReset: () => void }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 1.25rem', background: T.forest, marginBottom: '2.5rem' }}>
+      <div style={{ opacity: 0.75 }}>
+        <type.Icon color={T.clay} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <p style={{ fontFamily: FONT.mono, fontSize: '0.5rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: `${T.cream}60`, marginBottom: '3px' }}>
+          Contributing
+        </p>
+        <p style={{ fontFamily: FONT.serif, fontStyle: 'italic', fontSize: '1.05rem', color: T.parchment, lineHeight: 1.2 }}>
+          {type.label}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onReset}
+        style={{
+          fontFamily: FONT.mono, fontSize: '0.52rem', letterSpacing: '0.14em', textTransform: 'uppercase',
+          color: `${T.cream}60`, background: 'none', border: `1px solid ${T.cream}25`,
+          padding: '5px 11px', cursor: 'pointer', borderRadius: 0, flexShrink: 0, transition: 'all 0.15s',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = T.cream; e.currentTarget.style.borderColor = `${T.cream}60` }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = `${T.cream}60`; e.currentTarget.style.borderColor = `${T.cream}25` }}
+      >
+        × Change
+      </button>
+    </div>
+  )
+}
+
+// ─── Sidebar: what happens next ───────────────────────────────────────────────
+
+function WhatHappensNext() {
+  const steps = [
+    { n: '01', text: 'Your submission is logged and timestamped in the archive queue.' },
+    { n: '02', text: 'A tradition council reviewer is notified.' },
+    { n: '03', text: 'You receive an email acknowledgement within 48 hours.' },
+    { n: '04', text: 'Review takes 2–8 weeks depending on the tradition.' },
+    { n: '05', text: 'You are contacted if the council has questions or needs clarification.' },
+    { n: '06', text: 'When published, your attribution appears exactly as you chose to share it.' },
+  ]
+  return (
+    <div style={{ background: T.parchment, border: `1px solid ${T.border}`, padding: '1.5rem' }}>
+      <p style={{ fontFamily: FONT.mono, fontSize: '0.54rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: T.sage, marginBottom: '1.25rem', paddingBottom: '0.875rem', borderBottom: `1px solid ${T.border}` }}>
+        What happens next
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {steps.map((step) => (
+          <div key={step.n} style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: FONT.mono, fontSize: '0.5rem', letterSpacing: '0.1em', color: T.border, flexShrink: 0, marginTop: '4px' }}>
+              {step.n}
+            </span>
+            <p style={{ fontFamily: FONT.serif, fontSize: '0.88rem', color: T.ink, lineHeight: 1.7 }}>
+              {step.text}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: `1px solid ${T.border}` }}>
+        <p style={{ fontFamily: FONT.serif, fontStyle: 'italic', fontSize: '0.84rem', color: T.warmGray, lineHeight: 1.7 }}>
+          This archive is tended with care. Nothing is rushed.
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -460,6 +533,7 @@ function HerbForm({ onSubmit }: { onSubmit: (tradition: string) => void }) {
   const [botanicalName, setBotanicalName]   = useState('')
   const [alternateNames, setAlternateNames] = useState<string[]>([])
   const [tradition, setTradition]           = useState('')
+  const [otherTradition, setOtherTradition] = useState('')
   const [region, setRegion]                 = useState('')
   const [plainSummary, setPlainSummary]     = useState('')
   const [prevention, setPrevention]         = useState('')
@@ -537,6 +611,30 @@ function HerbForm({ onSubmit }: { onSubmit: (tradition: string) => void }) {
               placeholder="e.g. Southern India, Appalachian Mountains" style={{ ...fieldBase }} />
           </FieldRow>
         </div>
+        <AnimatePresence>
+          {tradition === 'other' && (
+            <motion.div
+              key="other-tradition"
+              initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+              animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+              transition={{ duration: 0.22 }}
+            >
+              <FieldRow>
+                <FieldLabel htmlFor="other-tradition-text">Describe the tradition</FieldLabel>
+                <input
+                  id="other-tradition-text"
+                  value={otherTradition}
+                  onChange={(e) => setOtherTradition(e.target.value)}
+                  onFocus={focusOn}
+                  onBlur={focusOff}
+                  placeholder="Name and briefly describe the tradition of origin"
+                  style={{ ...fieldBase }}
+                />
+              </FieldRow>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </FormSection>
 
       <FormSection number="II" title="Your Knowledge">
@@ -715,6 +813,7 @@ function ElderVoiceForm({ onSubmit }: { onSubmit: (tradition: string) => void })
   const [elderTradition, setElderTradition] = useState('')
   const [tradition, setTradition]           = useState('')
   const [subject, setSubject]               = useState('')
+  const [submissionType, setSubmissionType] = useState<'recording' | 'transcript' | 'recollection' | ''>('')
   const [audioFile, setAudioFile]           = useState<File | null>(null)
   const [transcript, setTranscript]         = useState('')
   const [context, setContext]               = useState('')
@@ -731,7 +830,11 @@ function ElderVoiceForm({ onSubmit }: { onSubmit: (tradition: string) => void })
     const errs: Record<string, string> = {}
     if (!elderName.trim())    errs.elderName = 'The elder\'s name or designation is required.'
     if (!subject.trim())      errs.subject   = 'Please describe the subject of this knowledge.'
-    if (!audioFile && !transcript.trim()) errs.transcript = 'Please provide either a recording or a written transcript.'
+    if (!submissionType)      errs.submissionType = 'Please select a submission type.'
+    if (submissionType === 'recording' && !audioFile && !transcript.trim())
+      errs.transcript = 'Please provide a recording file or a written transcript.'
+    if ((submissionType === 'transcript' || submissionType === 'recollection') && !transcript.trim())
+      errs.transcript = 'This field is required.'
     if (!hasElderPermission)  errs.hasElderPermission = 'You must confirm the elder\'s permission.'
     if (!hasSharePermission)  errs.hasSharePermission = 'You must confirm this knowledge may be shared.'
     if (!email.trim())        errs.email     = 'An email is required for correspondence.'
@@ -776,26 +879,103 @@ function ElderVoiceForm({ onSubmit }: { onSubmit: (tradition: string) => void })
         </FieldRow>
       </FormSection>
 
-      <FormSection number="II" title="The Recording or Transcript">
+      <FormSection number="II" title="The Submission">
         <FieldRow>
-          <FieldLabel>Audio or video recording</FieldLabel>
-          <UploadZone accept="audio/*,video/*" label="Upload a recording of the elder's voice" file={audioFile} onChange={setAudioFile} />
-          <Helper>Accepted: MP3, WAV, MP4, MOV. Preferred: original recording, unedited.</Helper>
+          <FieldLabel required>What are you submitting?</FieldLabel>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {(['recording', 'transcript', 'recollection'] as const).map((opt) => {
+              const labels: Record<string, string> = { recording: 'A recording', transcript: 'A transcript', recollection: 'A recollection' }
+              const sel = submissionType === opt
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setSubmissionType(opt)}
+                  style={{
+                    fontFamily: FONT.mono, fontSize: '0.56rem', letterSpacing: '0.12em',
+                    textTransform: 'uppercase', padding: '7px 14px', borderRadius: 0,
+                    border: `1px solid ${sel ? T.forest : T.border}`,
+                    background: sel ? T.forest : 'transparent',
+                    color: sel ? T.parchment : T.warmGray,
+                    cursor: 'pointer', transition: 'all 0.15s',
+                  }}
+                >
+                  {labels[opt]}
+                </button>
+              )
+            })}
+          </div>
+          {errors.submissionType && <FieldError message={errors.submissionType} />}
         </FieldRow>
-        <FieldRow>
-          <FieldLabel htmlFor="transcript" required={!audioFile}>Transcript</FieldLabel>
-          <textarea id="transcript" value={transcript} onChange={(e) => setTranscript(e.target.value)} onFocus={focusOn} onBlur={focusOff}
-            placeholder="Full transcript of the recording — or, if no recording, the written form of the knowledge as shared by the elder"
-            style={{ ...fieldBase, minHeight: '180px', resize: 'vertical', lineHeight: 1.8 }} />
-          {!audioFile && <Helper>Required if no recording is provided.</Helper>}
-          {errors.transcript && <FieldError message={errors.transcript} />}
-        </FieldRow>
-        <FieldRow>
-          <FieldLabel htmlFor="elder-context">Context for this recording</FieldLabel>
-          <textarea id="elder-context" value={context} onChange={(e) => setContext(e.target.value)} onFocus={focusOn} onBlur={focusOff}
-            placeholder="When and where was this recorded? What were the circumstances? Any editorial notes?"
-            style={{ ...fieldBase, minHeight: '90px', resize: 'vertical', lineHeight: 1.75 }} />
-        </FieldRow>
+
+        <AnimatePresence mode="wait">
+          {submissionType === 'recording' && (
+            <motion.div key="recording" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <FieldRow>
+                <FieldLabel>Audio or video recording</FieldLabel>
+                <UploadZone accept="audio/*,video/*" label="Upload a recording of the elder's voice" file={audioFile} onChange={setAudioFile} />
+                <Helper>Accepted: MP3, WAV, MP4, MOV. Preferred: original, unedited.</Helper>
+              </FieldRow>
+              <FieldRow>
+                <FieldLabel htmlFor="transcript-rec">Transcript (optional)</FieldLabel>
+                <textarea id="transcript-rec" value={transcript} onChange={(e) => setTranscript(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="If you have a written transcription of the recording, include it here"
+                  style={{ ...fieldBase, minHeight: '140px', resize: 'vertical', lineHeight: 1.8 }} />
+                {errors.transcript && <FieldError message={errors.transcript} />}
+              </FieldRow>
+              <FieldRow>
+                <FieldLabel htmlFor="elder-context-rec">Context</FieldLabel>
+                <textarea id="elder-context-rec" value={context} onChange={(e) => setContext(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="When and where was this recorded? What were the circumstances? Any editorial notes?"
+                  style={{ ...fieldBase, minHeight: '90px', resize: 'vertical', lineHeight: 1.75 }} />
+              </FieldRow>
+            </motion.div>
+          )}
+
+          {submissionType === 'transcript' && (
+            <motion.div key="transcript" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <FieldRow>
+                <FieldLabel htmlFor="transcript-text" required>Transcript</FieldLabel>
+                <textarea id="transcript-text" value={transcript} onChange={(e) => setTranscript(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="Full written transcript of the elder's knowledge. If translated, note the original language."
+                  style={{ ...fieldBase, minHeight: '200px', resize: 'vertical', lineHeight: 1.8 }} />
+                {errors.transcript && <FieldError message={errors.transcript} />}
+              </FieldRow>
+              <FieldRow>
+                <FieldLabel htmlFor="elder-context-tr">Context</FieldLabel>
+                <textarea id="elder-context-tr" value={context} onChange={(e) => setContext(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="When and where was this recorded or written? Any editorial notes?"
+                  style={{ ...fieldBase, minHeight: '90px', resize: 'vertical', lineHeight: 1.75 }} />
+              </FieldRow>
+            </motion.div>
+          )}
+
+          {submissionType === 'recollection' && (
+            <motion.div key="recollection" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+              <div style={{ background: T.parchment, border: `1px solid ${T.border}`, borderLeft: `3px solid ${T.warmGray}`, padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
+                <p style={{ fontFamily: FONT.mono, fontSize: '0.52rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: T.warmGray, marginBottom: '5px' }}>
+                  Community Record designation
+                </p>
+                <p style={{ fontFamily: FONT.serif, fontStyle: 'italic', fontSize: '0.88rem', color: T.warmGray, lineHeight: 1.7 }}>
+                  Knowledge shared from memory or second-hand account will be published as a Community Record — attributed to its source, and noted as recollection rather than a direct recording or document.
+                </p>
+              </div>
+              <FieldRow>
+                <FieldLabel htmlFor="transcript-rec2" required>Write what you know</FieldLabel>
+                <textarea id="transcript-rec2" value={transcript} onChange={(e) => setTranscript(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="Write the knowledge as completely as you can. Include the elder's words if you can recall them, and note where you are paraphrasing."
+                  style={{ ...fieldBase, minHeight: '200px', resize: 'vertical', lineHeight: 1.8 }} />
+                {errors.transcript && <FieldError message={errors.transcript} />}
+              </FieldRow>
+              <FieldRow>
+                <FieldLabel htmlFor="elder-context-rc">Context</FieldLabel>
+                <textarea id="elder-context-rc" value={context} onChange={(e) => setContext(e.target.value)} onFocus={focusOn} onBlur={focusOff}
+                  placeholder="When and from whom did you receive this knowledge? How long ago?"
+                  style={{ ...fieldBase, minHeight: '90px', resize: 'vertical', lineHeight: 1.75 }} />
+              </FieldRow>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </FormSection>
 
       <FormSection number="III" title="Permission">
@@ -880,6 +1060,8 @@ export default function ContributePage() {
   const [submitted, setSubmitted]       = useState(false)
   const [tradition, setTradition]       = useState('')
 
+  const activeType = ENTRY_TYPES.find((t) => t.id === selectedType) ?? null
+
   const handleSubmit = (t: string) => {
     setTradition(t)
     setSubmitted(true)
@@ -954,48 +1136,69 @@ export default function ContributePage() {
           </div>
         </motion.div>
 
-        {/* ── Entry type selection ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }}
-        >
-          <p style={{ fontFamily: FONT.mono, fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: T.sage, marginBottom: '1.25rem' }}>
-            What are you contributing?
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '3rem' }}>
-            {ENTRY_TYPES.map((type) => (
-              <TypeCard
-                key={type.id}
-                type={type}
-                selected={selectedType === type.id}
-                onSelect={() => setSelectedType(type.id === selectedType ? null : type.id)}
-              />
-            ))}
-          </div>
-        </motion.div>
+        {/* ── Entry type selection (hidden once a type is chosen) ── */}
+        <AnimatePresence>
+          {!selectedType && (
+            <motion.div
+              key="type-cards"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, delay: 0.25 }}
+            >
+              <p style={{ fontFamily: FONT.mono, fontSize: '0.58rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: T.sage, marginBottom: '1.25rem' }}>
+                What are you contributing?
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '3rem' }}>
+                {ENTRY_TYPES.map((type) => (
+                  <TypeCard
+                    key={type.id}
+                    type={type}
+                    selected={selectedType === type.id}
+                    onSelect={() => setSelectedType(type.id)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* ── Form ── */}
+        {/* ── Form + sidebar ── */}
         <AnimatePresence mode="wait">
-          {selectedType && (
+          {selectedType && activeType && (
             <motion.div
               key={selectedType}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4 }}
             >
-              <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: '2.75rem', marginBottom: '4rem' }}>
-                <p style={{ fontFamily: FONT.mono, fontSize: '0.56rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: T.warmGray, marginBottom: '0.5rem' }}>
-                  Fields marked with a{' '}
-                  <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: T.clay, verticalAlign: 'middle', margin: '0 2px 2px' }} />
-                  {' '}are required
-                </p>
-                <p style={{ fontFamily: FONT.serif, fontStyle: 'italic', fontSize: '0.9rem', color: T.warmGray, marginBottom: '2.75rem', lineHeight: 1.65 }}>
-                  Take the time this deserves. There is no rush.
-                </p>
+              {/* Compact selector row */}
+              <CompactTypeSelector type={activeType} onReset={() => setSelectedType(null)} />
 
-                {selectedType === 'herb'     && <HerbForm     onSubmit={handleSubmit} />}
-                {selectedType === 'practice' && <PracticeForm onSubmit={handleSubmit} />}
-                {selectedType === 'elder'    && <ElderVoiceForm onSubmit={handleSubmit} />}
+              {/* Required fields note */}
+              <p style={{ fontFamily: FONT.mono, fontSize: '0.56rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: T.warmGray, marginBottom: '0.5rem' }}>
+                Fields marked with a{' '}
+                <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: T.clay, verticalAlign: 'middle', margin: '0 2px 2px' }} />
+                {' '}are required
+              </p>
+              <p style={{ fontFamily: FONT.serif, fontStyle: 'italic', fontSize: '0.9rem', color: T.warmGray, marginBottom: '2.5rem', lineHeight: 1.65 }}>
+                Take the time this deserves. There is no rush.
+              </p>
+
+              {/* Form + sidebar layout */}
+              <div className="flex flex-col lg:flex-row lg:items-start" style={{ gap: '2rem', marginBottom: '4rem' }}>
+                {/* Form */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {selectedType === 'herb'     && <HerbForm     onSubmit={handleSubmit} />}
+                  {selectedType === 'practice' && <PracticeForm onSubmit={handleSubmit} />}
+                  {selectedType === 'elder'    && <ElderVoiceForm onSubmit={handleSubmit} />}
+                </div>
+
+                {/* Sidebar */}
+                <aside className="lg:w-60 lg:flex-shrink-0">
+                  <WhatHappensNext />
+                </aside>
               </div>
             </motion.div>
           )}
