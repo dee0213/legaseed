@@ -1,9 +1,20 @@
 import type { Metadata } from 'next'
-import { Cormorant_Garamond, DM_Mono, Libre_Baskerville } from 'next/font/google'
+import { Cormorant_Garamond, DM_Mono, Libre_Baskerville, EB_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import GrainOverlay from '@/components/layout/GrainOverlay'
 import Navigation from '@/components/layout/Navigation'
+import Footer from '@/components/layout/Footer'
+import { FloatingDust } from '@/components/Motion'
+import { WanderingMoth } from '@/components/Wonder'
 import './globals.css'
+
+const ebGaramond = EB_Garamond({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500'],
+  style: ['normal', 'italic'],
+  variable: '--font-eb',
+  display: 'swap',
+})
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin', 'latin-ext'],
@@ -50,15 +61,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${dmMono.variable} ${libreBaskerville.variable}`}
+      className={`${cormorant.variable} ${dmMono.variable} ${libreBaskerville.variable} ${ebGaramond.variable}`}
     >
       <body>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <GrainOverlay />
+        <FloatingDust />
+        <WanderingMoth speed={0.16} opacity={0.65} />
         <Navigation />
         <main id="main-content">{children}</main>
+        <Footer />
         <Analytics />
       </body>
     </html>
