@@ -100,6 +100,16 @@ function IconContribute() {
   )
 }
 
+function IconAbout() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+      stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="9" cy="9" r="6.5"/>
+      <path d="M9 8v4M9 6.5h.01"/>
+    </svg>
+  )
+}
+
 function IconChevronRight() {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
@@ -212,8 +222,24 @@ const NAV_ITEMS: NavEntry[] = [
       {
         items: [
           { label: 'Share knowledge',     href: '/contribute', sub: 'Submit an entry' },
-          { label: 'About the archive',   href: '/contribute' },
-          { label: 'Verification process', href: '/contribute' },
+          { label: 'About the archive',   href: '/about' },
+          { label: 'Verification process', href: '/about#source-standard' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'about',
+    label: 'About',
+    href: '/about',
+    mobileIcon: <IconAbout />,
+    dropdownGroups: [
+      {
+        items: [
+          { label: 'Who we are',          href: '/about' },
+          { label: 'Our source standard', href: '/about#source-standard', sub: 'How we verify' },
+          { label: 'The five-axis schema', href: '/about#schema', sub: 'How entries are tagged' },
+          { label: 'Eight traditions',    href: '/about#traditions' },
         ],
       },
     ],
@@ -763,7 +789,7 @@ function MobileNav() {
                     whiteSpace: 'nowrap',
                   }}>
                     {/* Shorten long labels for mobile */}
-                    {item.id === 'body-through-time' ? 'Body · Time' : item.label}
+                    {item.id === 'body-through-time' ? 'Body · Time' : item.label.slice(0, 7)}
                   </span>
                 </button>
               </li>

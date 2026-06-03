@@ -20,10 +20,10 @@ const COLS = [
   {
     title: 'About Legaseed',
     links: [
-      { label: 'Who we are',            href: '/' },
-      { label: 'Our editorial standards', href: '/' },
-      { label: 'Sourcing tiers',        href: '/' },
-      { label: 'The five-axis schema',  href: '/' },
+      { label: 'Who we are',            href: '/about' },
+      { label: 'Our editorial standards', href: '/about#source-standard' },
+      { label: 'Sourcing tiers',        href: '/about#source-standard' },
+      { label: 'The five-axis schema',  href: '/about#schema' },
       { label: 'Press · interviews',    href: '/' },
     ],
   },
